@@ -1,0 +1,31 @@
+package com.uwf.mod;
+
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+
+public class ShahedLauncherItem extends Item {
+
+  public ShahedLauncherItem(Properties properties) {
+    super(properties);
+  }
+
+  @Override
+  public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    ItemStack stack = player.getItemInHand(hand);
+    if (!level.isClientSide()) {
+      Shahed238Entity drone = new Shahed238Entity(ModEntities.SHAHED_238.get(), level);
+      Vec3 look = player.getLookAngle();
+      Vec3 start = player.getEyePosition().add(look.scale(2.0)).subtract(0, 0.5, 0);
+      drone.moveTo(start.x, start.y, start.z, player.getYRot(), 0.0F);
+      drone.launch(look, player.getYRot());
+      level.addFreshEntity(drone);
+      player.getCooldowns().addCooldown(this, 20);
+    }
+    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide());
+  }
+}
